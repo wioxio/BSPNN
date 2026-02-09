@@ -17,7 +17,7 @@ Or install from source:
 
 ```bash
 git clone https://github.com/wioxio/BSPNN
-cd bspnn
+cd BSPNN
 pip install -e .
 ```
 
