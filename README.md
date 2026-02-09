@@ -228,7 +228,7 @@ If you use this package in your research, please cite:
 
 ```
 @software{bspnn,
-  title={BSPNN: Biological Signal Pathway Neural Network},
+  title={BSPNN: Pathway-based stepforward neural network},
   author={Shin, Min-Gyoung},
   year={2026},
   url={https://github.com/wioxio/BSPNN}
