@@ -16,7 +16,7 @@ setup(
     description="BSPNN: Biological Signal Pathway Neural Network - Pathway-based prediction pipeline using neural networks with hierarchical modeling",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/wioxio/BSPNN",
+    url="https://github.com/yourusername/bspnn",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -30,10 +30,9 @@ setup(
     ],
     python_requires=">=3.7",
     install_requires=[
-        "numpy>=1.19.0",
+        "numpy>=1.19.0,<2.0.0",
         "pandas>=1.2.0",
-        "tensorflow>=2.4.0",
-        "keras>=2.4.0",
+        "tensorflow>=2.8.0; python_version<'3.13'",
         "scikit-learn>=0.24.0",
         "shap>=0.39.0",
     ],
