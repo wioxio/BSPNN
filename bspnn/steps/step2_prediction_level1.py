@@ -10,18 +10,14 @@ import os
 import pickle
 from pathlib import Path
 import tensorflow as tf
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
 
 from ..models import make_pathway_model
 from ..callbacks import EarlyStoppingAtMinLoss
-from ..utils import normalize_data, clean_file_list, pickle_data
+from ..utils import normalize_data, clean_file_list, pickle_data, configure_gpu
 
 
-# Configure GPU
-config = ConfigProto()
-config.gpu_options.allow_growth = True
-session = InteractiveSession(config=config)
+# Configure GPU (TensorFlow 2.x style - no InteractiveSession needed)
+configure_gpu()
 
 
 def step2_prediction_level1(
@@ -82,19 +78,38 @@ def step2_prediction_level1(
     print(f"patience: {patience}")
     print('\n')
 
+    # Create output directory if it doesn't exist
+    output_dir = runN + "/prediction_by_fold1/"
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    print(f"Output directory created/verified: {output_dir}")
+
     # Read pathways
     pathways = pd.read_csv(pathwayN, header=0, index_col=0)
+    print(f"Loaded {len(pathways.columns)} pathways from {pathwayN}")
+    
     # Read pathway indices, no header and index
     pathway_indices = pd.read_csv(path_index_fileN, header=None, index_col=None)
     pathway_indices = pathway_indices.iloc[range(0, 20), 0].values
     pathway_indices = pathway_indices.astype(int)
+    print(f"Processing {len(pathway_indices)} pathway indices: {pathway_indices[:5]}...")
 
     for dataC in range(len(train_dataNs)):
-        with open(runN + '/data/' + train_dataNs[dataC], 'rb') as file:
+        train_file_path = os.path.join(runN, 'data', train_dataNs[dataC])
+        val_file_path = os.path.join(runN, 'data', val_dataNs[dataC])
+        test_file_path = os.path.join(runN, 'data', test_dataNs[dataC])
+        
+        if not os.path.exists(train_file_path):
+            raise FileNotFoundError(f"Train data file not found: {train_file_path}")
+        if not os.path.exists(val_file_path):
+            raise FileNotFoundError(f"Validation data file not found: {val_file_path}")
+        if not os.path.exists(test_file_path):
+            raise FileNotFoundError(f"Test data file not found: {test_file_path}")
+        
+        with open(train_file_path, 'rb') as file:
             train_data_step1 = pickle.load(file)
-        with open(runN + '/data/' + val_dataNs[dataC], 'rb') as file:
+        with open(val_file_path, 'rb') as file:
             val_data_step1 = pickle.load(file)
-        with open(runN + '/data/' + test_dataNs[dataC], 'rb') as file:
+        with open(test_file_path, 'rb') as file:
             test_data_step1 = pickle.load(file)
 
         x_train_step1 = train_data_step1.iloc[:, 1:].values
@@ -152,26 +167,23 @@ def step2_prediction_level1(
             print(f'########## {pi}th pathway in {test_dataNs[dataC]} test accuracy: {accuracy*100:.2f}%')
             inner_cv_test_pathway_accuracy.append(accuracy)
 
-            # Create directory if it doesn't exist
-            Path(runN + "/prediction_by_fold1/").mkdir(parents=True, exist_ok=True)
-            pickle_data(
-                runN + "/prediction_by_fold1/pi" + str(pi) + "_" +
-                train_dataNs[dataC].replace(".pkl", "_prediction_by_fold1_pi" + str(pi) + ".pkl"),
-                model1_0.predict(X_train_sub)
-            )
-            pickle_data(
-                runN + "/prediction_by_fold1/pi" + str(pi) + "_" +
-                val_dataNs[dataC].replace(".pkl", "_prediction_by_fold1_pi" + str(pi) + ".pkl"),
-                model1_0.predict(X_val_sub)
-            )
-            pickle_data(
-                runN + "/prediction_by_fold1/pi" + str(pi) + "_" +
-                test_dataNs[dataC].replace(".pkl", "_prediction_by_fold1_pi" + str(pi) + ".pkl"),
-                model1_0.predict(X_test_sub)
-            )
+            # Save predictions
+            train_pred_file = runN + "/prediction_by_fold1/pi" + str(pi) + "_" + train_dataNs[dataC].replace(".pkl", "_prediction_by_fold1_pi" + str(pi) + ".pkl")
+            val_pred_file = runN + "/prediction_by_fold1/pi" + str(pi) + "_" + val_dataNs[dataC].replace(".pkl", "_prediction_by_fold1_pi" + str(pi) + ".pkl")
+            test_pred_file = runN + "/prediction_by_fold1/pi" + str(pi) + "_" + test_dataNs[dataC].replace(".pkl", "_prediction_by_fold1_pi" + str(pi) + ".pkl")
+            
+            pickle_data(train_pred_file, model1_0.predict(X_train_sub))
+            pickle_data(val_pred_file, model1_0.predict(X_val_sub))
+            pickle_data(test_pred_file, model1_0.predict(X_test_sub))
+            
+            print(f'  Saved predictions for pathway {pi} to: {test_pred_file}')
+
+    print("Step 2 completed successfully!")
+    print(f"Predictions saved to: {runN}/prediction_by_fold1/")
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for CLI."""
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -213,3 +225,7 @@ if __name__ == "__main__":
         output_prefix=args.output_prefix,
         runN=args.runN
     )
+
+
+if __name__ == "__main__":
+    main()

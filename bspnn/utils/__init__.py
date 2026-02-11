@@ -7,7 +7,8 @@ from .data_utils import (
     normalize_data,
     clean_file_list,
     split_comma_separated,
-    get_importance_index_flag
+    get_importance_index_flag,
+    configure_gpu
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "clean_file_list",
     "split_comma_separated",
     "get_importance_index_flag",
+    "configure_gpu",
 ]

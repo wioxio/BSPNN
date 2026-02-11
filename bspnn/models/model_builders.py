@@ -2,8 +2,14 @@
 Model architecture builders for pathway-based neural network models.
 """
 
-from keras.models import Sequential
-from keras.layers import Dense
+try:
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import Dense
+except ImportError:
+    # Fallback for older TensorFlow versions or standalone Keras
+    from keras.models import Sequential
+    from keras.layers import Dense
+
 import numpy as np
 
 

@@ -1,7 +1,7 @@
 """
 Step 1: Primary pathway prediction.
 
-Trains individual pathway models and evaluates their performance.
+Trains pathway-specific models and evaluates their performance.
 """
 
 import pandas as pd
@@ -10,18 +10,14 @@ import os
 import pickle
 import csv
 import tensorflow as tf
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
 
 from ..models import make_pathway_model
 from ..callbacks import EarlyStoppingAtMinLoss
-from ..utils import normalize_data
+from ..utils import normalize_data, configure_gpu
 
 
-# Configure GPU
-config = ConfigProto()
-config.gpu_options.allow_growth = True
-session = InteractiveSession(config=config)
+# Configure GPU (TensorFlow 2.x style - no InteractiveSession needed)
+configure_gpu()
 
 
 def step1_primary_prediction(
@@ -40,7 +36,7 @@ def step1_primary_prediction(
     runN
 ):
     """
-    Train pathway models and evaluate their accuracy.
+    Train pathway-specific models and evaluate their performance.
     
     Args:
         train_dataN: Path to training data pickle file
@@ -48,7 +44,7 @@ def step1_primary_prediction(
         pathwayN: Path to pathway CSV file
         Nlayers: Number of layers (not used but kept for compatibility)
         Nnodes: Number of nodes (not used but kept for compatibility)
-        optimizer: Optimizer name (e.g., 'adam', 'sgd', 'rmsprop')
+        optimizer: Optimizer name
         epoch_p: Maximum number of epochs
         patience: Patience for early stopping
         batch_size_p: Batch size
@@ -91,7 +87,6 @@ def step1_primary_prediction(
     outter_cv_pathway_accuracy_sorted_writerN = open(runN + '/' + output_prefix + '_primary_sorted.csv', 'a', newline='')
     outter_cv_pathway_accuracy_sorted_writer = csv.writer(outter_cv_pathway_accuracy_sorted_writerN)
 
-    # Load training data
     with open(train_dataN, 'rb') as file:
         train_data = pickle.load(file)
 
@@ -100,7 +95,6 @@ def step1_primary_prediction(
     y_train = train_data.iloc[:, 0].values
     y_train = y_train.astype("float32")
 
-    # Load test data
     with open(test_dataN, 'rb') as file:
         test_data = pickle.load(file)
 
@@ -124,16 +118,9 @@ def step1_primary_prediction(
         X_train_sub = x_train[:, np.where(pathways_sub > 0)[0]]
         X_test_sub = x_test[:, np.where(pathways_sub > 0)[0]]
 
-        model1_0 = make_pathway_model(
-            X_train_sub.shape[1], 1, Nnodes, Nlayers, optimizer, pi,
-            pathways_sub[pathways_sub > 0], diag_self
-        )
+        model1_0 = make_pathway_model(X_train_sub.shape[1], 1, Nnodes, Nlayers, optimizer, pi, pathways_sub[pathways_sub > 0], diag_self)
 
-        model1_0.fit(
-            X_train_sub, y_train, epochs=epoch_p, batch_size=batch_size_p,
-            verbose=0, callbacks=[EarlyStoppingAtMinLoss(patience=patience)],
-            validation_split=0.2, shuffle=True
-        )
+        model1_0.fit(X_train_sub, y_train, epochs=epoch_p, batch_size=batch_size_p, verbose=0, callbacks=[EarlyStoppingAtMinLoss(patience=patience)], validation_split=0.2, shuffle=True)
 
         # Evaluate the model
         loss, accuracy = model1_0.evaluate(X_test_sub, y_test, verbose=0)
@@ -156,7 +143,8 @@ def step1_primary_prediction(
     outter_cv_pathway_accuracy_sorted_writerN.close()
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for CLI."""
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -200,3 +188,7 @@ if __name__ == "__main__":
         output_prefix=args.output_prefix,
         runN=args.runN
     )
+
+
+if __name__ == "__main__":
+    main()

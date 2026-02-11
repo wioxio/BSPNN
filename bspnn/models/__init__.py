@@ -1,5 +1,5 @@
 """
-Model architectures for pathway-based prediction.
+Model architecture builders for pathway-based neural network models.
 """
 
 from .model_builders import (

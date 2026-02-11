@@ -4,6 +4,42 @@ Utility functions for data loading, saving, and preprocessing.
 
 import pickle
 import numpy as np
+import tensorflow as tf
+
+
+# Track if GPU has been configured to avoid reconfiguration warnings
+_gpu_configured = False
+
+def configure_gpu():
+    """
+    Configure GPU settings for TensorFlow.
+    Uses TensorFlow 2.x GPU configuration (no InteractiveSession needed).
+    Checks if GPU is available and configures memory growth.
+    This function is idempotent and can be called multiple times safely.
+    """
+    global _gpu_configured
+    
+    # Only configure once to avoid warnings
+    if _gpu_configured:
+        return
+    
+    # Check if GPU is available
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        try:
+            # Enable memory growth to avoid allocating all GPU memory at once
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            _gpu_configured = True
+        except RuntimeError as e:
+            # Memory growth must be set before GPUs have been initialized
+            # This is OK if it's already been set
+            if "already been set" not in str(e):
+                print(f"Warning: Could not set GPU memory growth: {e}")
+            _gpu_configured = True
+    else:
+        # No GPU available, mark as configured to avoid repeated messages
+        _gpu_configured = True
 
 
 def pickle_data(fileN_p, dt_p):
@@ -29,6 +65,14 @@ def normalize_data(data):
     Returns:
         Normalized numpy array
     """
+    # Convert to numpy array if not already
+    data = np.asarray(data)
+    
+    # Create a writable copy if the array is read-only
+    # This handles cases where data comes from memory-mapped files or read-only views
+    if not data.flags.writeable:
+        data = data.copy()
+    
     return np.nan_to_num(data, 0)
 
 
