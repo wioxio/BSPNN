@@ -1,5 +1,5 @@
 """
-Utilities for BSPNN v2.
+Utilities for BSPNN.
 """
 
 from .data_utils import (

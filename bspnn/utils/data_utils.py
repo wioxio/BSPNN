@@ -1,5 +1,5 @@
 """
-Utility helpers used by BSPNN v2 step scripts.
+Utility helpers used by BSPNN step scripts.
 """
 
 import pickle

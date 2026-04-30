@@ -1,5 +1,5 @@
 """
-Custom early stopping callback for BSPNN v2.
+Custom early stopping callback for BSPNN.
 """
 
 import numpy as np

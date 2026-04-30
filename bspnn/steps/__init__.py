@@ -1,3 +1,3 @@
 """
-Step scripts for BSPNN v2.
+Step scripts for BSPNN.
 """

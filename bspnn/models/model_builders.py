@@ -1,5 +1,5 @@
 """
-Model architecture builders for BSPNN v2.
+Model architecture builders for BSPNN.
 """
 
 import numpy as np

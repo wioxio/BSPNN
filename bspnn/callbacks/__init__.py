@@ -1,5 +1,5 @@
 """
-Callbacks for BSPNN v2.
+Callbacks for BSPNN.
 """
 
 from .early_stopping import EarlyStoppingAtMinLoss

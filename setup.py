@@ -8,10 +8,10 @@ long_description = readme_path.read_text(encoding="utf-8") if readme_path.exists
 
 
 setup(
-    name="bspnn-v2",
+    name="bspnn",
     version="2.0.0",
     author="Min-Gyoung Shin",
-    description="BSPNN v2 pathway-based prediction scripts packaged for distribution",
+    description="BSPNN pathway-based prediction scripts packaged for distribution",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),
@@ -27,9 +27,9 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "bspnn-v2-step1=bspnn_v2.cli:step1",
-            "bspnn-v2-step2=bspnn_v2.cli:step2",
-            "bspnn-v2-step3=bspnn_v2.cli:step3",
+            "bspnn-step1=bspnn.cli:step1",
+            "bspnn-step2=bspnn.cli:step2",
+            "bspnn-step3=bspnn.cli:step3",
         ],
     },
 )
