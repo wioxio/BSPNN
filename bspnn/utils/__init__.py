@@ -1,21 +1,17 @@
 """
-Utility functions for data handling and processing.
+Utilities for BSPNN v2.
 """
 
 from .data_utils import (
-    pickle_data,
-    normalize_data,
-    clean_file_list,
     split_comma_separated,
+    clean_file_list,
+    pickle_data,
     get_importance_index_flag,
-    configure_gpu
 )
 
 __all__ = [
-    "pickle_data",
-    "normalize_data",
-    "clean_file_list",
     "split_comma_separated",
+    "clean_file_list",
+    "pickle_data",
     "get_importance_index_flag",
-    "configure_gpu",
 ]
