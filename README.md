@@ -89,6 +89,64 @@ python -m bspnn_v2.steps.step2_prediction_level1 --help
 python -m bspnn_v2.steps.step3_prediction_level2 --help
 ```
 
+### Run Examples
+
+After installation, you can run the full pipeline from the command line.
+
+```bash
+# Step 1
+bspnn-v2-step1 \
+  --train_dataN path/to/train_data.pkl \
+  --val_dataN path/to/val_data.pkl \
+  --pathwayN path/to/pathways.csv \
+  --Nlayers 3 \
+  --Nnodes 128 \
+  --optimizer adam \
+  --epoch 100 \
+  --patience 10 \
+  --batch_size 32 \
+  --pathway_start_i 0 \
+  --pathway_end_i 19 \
+  --output_prefix output \
+  --runN results/run1
+
+# Step 2
+bspnn-v2-step2 \
+  --train_dataNs train1.pkl train2.pkl \
+  --val_dataNs val1.pkl val2.pkl \
+  --test_dataNs test1.pkl test2.pkl \
+  --pathwayN path/to/pathways.csv \
+  --Nlayers 3 \
+  --Nnodes 128 \
+  --optimizer adam \
+  --epoch 100 \
+  --patience 10 \
+  --batch_size 32 \
+  --path_index_fileN path/to/pathway_indices.csv \
+  --output_prefix output \
+  --runN results/run1
+
+# Step 3
+bspnn-v2-step3 \
+  --cv_train_dataNs train1.pkl train2.pkl \
+  --cv_val_dataNs val1.pkl val2.pkl \
+  --cv_test_dataNs test1.pkl test2.pkl \
+  --cv_train_pathway_prediction_dataNs train1 train2 \
+  --cv_val_pathway_prediction_dataNs val1 val2 \
+  --cv_test_pathway_prediction_dataNs test1 test2 \
+  --pathwayN path/to/pathways.csv \
+  --Nlayers 3 \
+  --Nnodes 128 \
+  --optimizer adam \
+  --epoch 100 \
+  --patience 10 \
+  --batch_size 32 \
+  --path_index_fileN path/to/pathway_indices.csv \
+  --output_prefix output \
+  --runN results/run1 \
+  --trial 1
+```
+
 ## Notes
 
 - This v2 package is based on scripts in `prior_node2vec/scripts/v2`.
