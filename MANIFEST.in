@@ -1,0 +1,2 @@
+include README.md
+recursive-include bspnn_v2 *.py
