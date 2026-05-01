@@ -6,6 +6,7 @@ This package provides a three-step pathway-based prediction pipeline:
 
 1. **Step 1: Primary Prediction**
    - Trains individual pathway models and evaluates their performance.
+   - Requires paired `--train_dataN` and `--val_dataN` pickle paths (one validation file per train file).
 2. **Step 2: Level 1 Prediction**
    - Trains pathway models across fold datasets and saves pathway-level predictions.
 3. **Step 3: Level 2 Prediction**
@@ -29,14 +30,14 @@ This package provides a three-step pathway-based prediction pipeline:
 Install from the package directory:
 
 ```bash
-cd "github_scripts_v2"
+cd BSPNN-main
 pip install -e .
 ```
 
 Or build/install as a standard package:
 
 ```bash
-cd "github_scripts_v2"
+cd BSPNN-main
 pip install .
 ```
 
@@ -147,7 +148,3 @@ bspnn-step3 \
   --trial 1
 ```
 
-## Notes
-
-- This package is based on scripts in `prior_node2vec/scripts/v2`.
-- Functionality is preserved while shared code is reorganized for easier maintenance.

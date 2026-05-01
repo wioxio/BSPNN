@@ -37,7 +37,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--train_dataN',
                     type=str)
 parser.add_argument('--val_dataN',
-                    type=str)
+                    type=str,
+                    help='Validation pickle path(s); comma-separated or repeated. Must align with --train_dataN.')
 parser.add_argument('--pathwayN',
                         type=str)
 parser.add_argument('--Nlayers', default=[2,3,4,5], 
@@ -69,8 +70,20 @@ parser.add_argument('--runN',
 args = parser.parse_args()
 
 
-train_dataN = split_comma_separated(args.train_dataN) if args.train_dataN else args.train_dataN
-val_dataN = split_comma_separated(args.val_dataN) if args.val_dataN else args.val_dataN
+train_dataN = split_comma_separated(args.train_dataN) if args.train_dataN else None
+val_dataN = split_comma_separated(args.val_dataN) if args.val_dataN else None
+
+if train_dataN is None:
+    parser.error("--train_dataN is required.")
+if val_dataN is None:
+    parser.error(
+        "--val_dataN is required (one pickle per train fold, same order as --train_dataN)."
+    )
+if len(train_dataN) != len(val_dataN):
+    parser.error(
+        f"--train_dataN and --val_dataN must list the same number of files "
+        f"(got {len(train_dataN)} train vs {len(val_dataN)} val)."
+    )
 
 print(train_dataN)
 print(val_dataN)
