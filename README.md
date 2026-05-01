@@ -5,25 +5,13 @@
 This package provides a three-step pathway-based prediction pipeline:
 
 1. **Step 1: Primary Prediction**
-   - Trains individual pathway models and evaluates their performance.
-   - Requires paired `--train_dataN` and `--val_dataN` (one validation pickle per train fold). Each argument is resolved to **`{runN}/data/<basename>`** (same layout as steps 2 and 3).
+   - Trains individual pathway models and evaluates their performance in each fold.
+   - Requires paired `--train_dataN` and `--val_dataN` (run it for each fold). Each argument is resolved to **`{runN}/data/<basename>`** (same layout as steps 2 and 3).
 2. **Step 2: Level 1 Prediction**
-   - Trains pathway models across fold datasets and saves pathway-level predictions.
+   - Trains pathway models across fold datasets and saves pathway-level predictionsfor each fold.
 3. **Step 3: Level 2 Prediction**
-   - Trains level 2 models using pathway predictions with stepwise forward selection and SHAP-based analysis.
+   - Trains level 2 models using pathway predictions with BNN, SPNN, BSPNN and SHAP-based analysis.
 
-## What's New
-
-- Refactored to a modular package structure:
-  - `bspnn/models`
-  - `bspnn/callbacks`
-  - `bspnn/utils`
-  - `bspnn/steps`
-- Shared functions are centralized (model builders, callbacks, and utilities).
-- Stable CLI entry points are available:
-  - `bspnn-step1`
-  - `bspnn-step2`
-  - `bspnn-step3`
 
 ## Installation
 
@@ -146,9 +134,9 @@ bspnn-step3 \
   --cv_train_dataNs fold1_train.pkl fold2_train.pkl \
   --cv_val_dataNs fold1_val.pkl fold2_val.pkl \
   --cv_test_dataNs fold1_test.pkl fold2_test.pkl \
-  --cv_train_pathway_prediction_dataNs fold1_train fold2_train \
-  --cv_val_pathway_prediction_dataNs fold1_val fold2_val \
-  --cv_test_pathway_prediction_dataNs fold1_test fold2_test \
+  --cv_train_pathway_prediction_dataNs fold1_train_prediction_level1.pkl fold2_train_prediction_level1.pkl \
+  --cv_val_pathway_prediction_dataNs fold1_val_prediction_level1.pkl fold2_val_prediction_level1.pkl \
+  --cv_test_pathway_prediction_dataNs fold1_test_prediction_level1.pkl fold2_test_prediction_level1.pkl \
   --pathwayN path/to/pathways.csv \
   --Nlayers 3 \
   --Nnodes 128 \
