@@ -35,10 +35,11 @@ parser = argparse.ArgumentParser()
 
 # read params
 parser.add_argument('--train_dataN',
-                    type=str)
+                    type=str,
+                    help='Train pickle(s): basename(s) resolved under RUN/data/ (comma-separated ok).')
 parser.add_argument('--val_dataN',
                     type=str,
-                    help='Validation pickle path(s); comma-separated or repeated. Must align with --train_dataN.')
+                    help='Validation pickle(s): basename(s) under RUN/data/, same order as --train_dataN.')
 parser.add_argument('--pathwayN',
                         type=str)
 parser.add_argument('--Nlayers', default=[2,3,4,5], 
@@ -69,15 +70,25 @@ parser.add_argument('--runN',
 
 args = parser.parse_args()
 
+runN = args.runN
+
+
+def _under_run_data(runN, paths):
+    if paths is None:
+        return None
+    return [os.path.normpath(os.path.join(runN, 'data', os.path.basename(p))) for p in paths]
+
 
 train_dataN = split_comma_separated(args.train_dataN) if args.train_dataN else None
 val_dataN = split_comma_separated(args.val_dataN) if args.val_dataN else None
+train_dataN = _under_run_data(runN, train_dataN)
+val_dataN = _under_run_data(runN, val_dataN)
 
 if train_dataN is None:
     parser.error("--train_dataN is required.")
 if val_dataN is None:
     parser.error(
-        "--val_dataN is required (one pickle per train fold, same order as --train_dataN)."
+        f"--val_dataN is required (one pickle per train fold under {runN}/data/, same order as --train_dataN)."
     )
 if len(train_dataN) != len(val_dataN):
     parser.error(
@@ -98,7 +109,6 @@ patience = args.patience
 batch_size_p = args.batch_size
 pathway_start_i = args.pathway_start_i
 pathway_end_i = args.pathway_end_i
-runN = args.runN
 
 
 ############### This should be updated
@@ -117,8 +127,9 @@ print(f"patience: {patience}")
 print('\n')
 
 
-# make a directory for the run
+# make a directory for the run and data layout
 os.makedirs(runN, exist_ok=True)
+os.makedirs(os.path.join(runN, 'data'), exist_ok=True)
 
 # read pathways
 pathways = pd.read_csv(pathwayN, header=0, index_col=0)

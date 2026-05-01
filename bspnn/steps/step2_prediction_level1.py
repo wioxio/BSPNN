@@ -90,6 +90,18 @@ batch_size_p = args.batch_size
 path_index_fileN = args.path_index_fileN
 runN = args.runN
 
+
+def _under_run_data(runN, names):
+    return [os.path.normpath(os.path.join(runN, 'data', os.path.basename(n))) for n in names]
+
+
+train_dataNs = _under_run_data(runN, train_dataNs)
+val_dataNs = _under_run_data(runN, val_dataNs)
+test_dataNs = _under_run_data(runN, test_dataNs)
+
+os.makedirs(os.path.join(runN, 'data'), exist_ok=True)
+os.makedirs(os.path.join(runN, 'prediction_level1'), exist_ok=True)
+
 # Handle output_prefix if None or list
 if output_prefix is None:
     output_prefix = "output"
@@ -185,9 +197,12 @@ for dataC in range(len(train_dataNs)):
         inner_cv_test_pathway_accuracy.append(accuracy) # all path for the current inner cv
         #
         # Create directory if it doesn't exist
-        Path(runN + "/prediction_level1/").mkdir(parents=True, exist_ok=True)
-        pickle_data(runN+"/prediction_level1/pi"+str(pi)+"_"+train_dataNs[dataC].replace(".pkl", "_prediction_level1_pi"+str(pi)+".pkl"), model1_0.predict(X_train_sub))
-        pickle_data(runN+"/prediction_level1/pi"+str(pi)+"_"+val_dataNs[dataC].replace(".pkl", "_prediction_level1_pi"+str(pi)+".pkl"), model1_0.predict(X_val_sub)) 
-        pickle_data(runN+"/prediction_level1/pi"+str(pi)+"_"+test_dataNs[dataC].replace(".pkl", "_prediction_level1_pi"+str(pi)+".pkl"), model1_0.predict(X_test_sub)) 
+        Path(os.path.join(runN, 'prediction_level1')).mkdir(parents=True, exist_ok=True)
+        stem_tr = os.path.splitext(os.path.basename(train_dataNs[dataC]))[0]
+        stem_va = os.path.splitext(os.path.basename(val_dataNs[dataC]))[0]
+        stem_te = os.path.splitext(os.path.basename(test_dataNs[dataC]))[0]
+        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_tr}_pi{pi}.pkl'), model1_0.predict(X_train_sub))
+        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_va}_pi{pi}.pkl'), model1_0.predict(X_val_sub))
+        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_te}_pi{pi}.pkl'), model1_0.predict(X_test_sub)) 
 
 

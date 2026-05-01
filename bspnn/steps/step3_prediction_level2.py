@@ -46,12 +46,15 @@ parser.add_argument('--cv_val_dataNs', # pickled, balanced assay
                     type=str, nargs='*',)
 parser.add_argument('--cv_test_dataNs', # pickled, balanced assay
                     type=str, nargs='*',)
-parser.add_argument('--cv_train_pathway_prediction_dataNs', # list of pickled pathway prediction by fold1
-                    type=str, nargs='*',)
-parser.add_argument('--cv_val_pathway_prediction_dataNs', # list of pickled pathway prediction by fold1
-                    type=str, nargs='*',)
-parser.add_argument('--cv_test_pathway_prediction_dataNs', # list of pickled pathway prediction by fold1
-                    type=str, nargs='*',)
+parser.add_argument('--cv_train_pathway_prediction_dataNs',
+                    type=str, nargs='*',
+                    help='Per-fold stem(s): reads RUN/prediction_level1/pi<k>_<stem>_pi<k>.pkl (pass basename / stem only).')
+parser.add_argument('--cv_val_pathway_prediction_dataNs',
+                    type=str, nargs='*',
+                    help='Per-fold stem(s) under RUN/prediction_level1/ (basename only).')
+parser.add_argument('--cv_test_pathway_prediction_dataNs',
+                    type=str, nargs='*',
+                    help='Per-fold stem(s) under RUN/prediction_level1/ (basename only).')
 parser.add_argument('--pathwayN',
                         type=str)
 parser.add_argument('--Nlayers', default=[2,3,4,5], 
@@ -82,17 +85,46 @@ parser.add_argument('--trial',
 
 args = parser.parse_args()
 
+runN = args.runN
+
+
+def _under_run_data(runN, paths):
+    if paths is None:
+        return None
+    return [os.path.normpath(os.path.join(runN, 'data', os.path.basename(p))) for p in paths]
+
+
+def _level1_pred_path(runN, pi, stem):
+    s = str(stem).replace('.pkl', '').replace('.PKL', '')
+    s = os.path.basename(s)
+    return os.path.normpath(os.path.join(runN, 'prediction_level1', f'pi{pi}_{s}_pi{pi}.pkl'))
+
 
 cv_train_dataNs = split_comma_separated(args.cv_train_dataNs) if args.cv_train_dataNs else args.cv_train_dataNs
 cv_val_dataNs = split_comma_separated(args.cv_val_dataNs) if args.cv_val_dataNs else args.cv_val_dataNs
 cv_test_dataNs = split_comma_separated(args.cv_test_dataNs) if args.cv_test_dataNs else args.cv_test_dataNs
 
+cv_train_dataNs = _under_run_data(runN, cv_train_dataNs)
+cv_val_dataNs = _under_run_data(runN, cv_val_dataNs)
+cv_test_dataNs = _under_run_data(runN, cv_test_dataNs)
+
 cv_train_pathway_prediction_dataNs = split_comma_separated(args.cv_train_pathway_prediction_dataNs) if args.cv_train_pathway_prediction_dataNs else args.cv_train_pathway_prediction_dataNs
 cv_val_pathway_prediction_dataNs = split_comma_separated(args.cv_val_pathway_prediction_dataNs) if args.cv_val_pathway_prediction_dataNs else args.cv_val_pathway_prediction_dataNs
 cv_test_pathway_prediction_dataNs = split_comma_separated(args.cv_test_pathway_prediction_dataNs) if args.cv_test_pathway_prediction_dataNs else args.cv_test_pathway_prediction_dataNs
-cv_train_pathway_prediction_dataNs = [s.replace('.pkl', '') for s in cv_train_pathway_prediction_dataNs]
-cv_val_pathway_prediction_dataNs = [s.replace('.pkl', '') for s in cv_val_pathway_prediction_dataNs]
-cv_test_pathway_prediction_dataNs = [s.replace('.pkl', '') for s in cv_test_pathway_prediction_dataNs]
+
+
+def _pathway_prediction_stem(name):
+    """Basename without .pkl; used with _level1_pred_path -> {runN}/prediction_level1/pi<k>_<stem>_pi<k>.pkl."""
+    s = os.path.basename(str(name))
+    return s.replace('.pkl', '').replace('.PKL', '')
+
+
+if cv_train_pathway_prediction_dataNs:
+    cv_train_pathway_prediction_dataNs = [_pathway_prediction_stem(s) for s in cv_train_pathway_prediction_dataNs]
+if cv_val_pathway_prediction_dataNs:
+    cv_val_pathway_prediction_dataNs = [_pathway_prediction_stem(s) for s in cv_val_pathway_prediction_dataNs]
+if cv_test_pathway_prediction_dataNs:
+    cv_test_pathway_prediction_dataNs = [_pathway_prediction_stem(s) for s in cv_test_pathway_prediction_dataNs]
 
 pathwayN = args.pathwayN
 Nlayers = args.Nlayers
@@ -103,8 +135,10 @@ output_prefix = args.output_prefix
 patience = args.patience
 batch_size_p = args.batch_size
 path_index_fileN=args.path_index_fileN
-runN = args.runN
 trial = args.trial
+
+os.makedirs(os.path.join(runN, 'data'), exist_ok=True)
+os.makedirs(os.path.join(runN, 'prediction_level1'), exist_ok=True)
 
 
 Nlayers = Nlayers[0]
@@ -126,11 +160,9 @@ def stepwise_forward(target_pathways_fixed_p, target_pathways_testing_p, train_d
     test_pathway_predictions_by_step1 = []
     #
     for pi in target_pathways_fixed_p:
-        with open( runN + 
-                "/prediction_level1/pi"+str(pi)+"_" + train_dataN+"_pi"+str(pi)+".pkl", 'rb') as file:
+        with open(_level1_pred_path(runN, pi, train_dataN), 'rb') as file:
             train_pathway_predictions_by_step1.append(pickle.load(file))
-        with open(runN + 
-                "/prediction_level1/pi"+str(pi)+"_" + test_dataN+"_pi"+str(pi)+".pkl", 'rb') as file:
+        with open(_level1_pred_path(runN, pi, test_dataN), 'rb') as file:
             test_pathway_predictions_by_step1.append(pickle.load(file))
     #
     train_pathway_predictions_by_step1 = np.array(train_pathway_predictions_by_step1)
@@ -162,11 +194,9 @@ def stepwise_forward(target_pathways_fixed_p, target_pathways_testing_p, train_d
         test_pathway_predictions_by_step1 = []
         #
         for pi in target_pathways_fixed_p + [target_pathways_testing_p[test_pi]]:
-            with open( runN + 
-                    "/prediction_level1/pi"+str(pi)+"_" + train_dataN+"_pi"+str(pi)+".pkl", 'rb') as file:
+            with open(_level1_pred_path(runN, pi, train_dataN), 'rb') as file:
                 train_pathway_predictions_by_step1.append(pickle.load(file))
-            with open(runN + 
-                    "/prediction_level1/pi"+str(pi)+"_" + test_dataN+"_pi"+str(pi)+".pkl", 'rb') as file:
+            with open(_level1_pred_path(runN, pi, test_dataN), 'rb') as file:
                 test_pathway_predictions_by_step1.append(pickle.load(file))
         #
         train_pathway_predictions_by_step1 = np.array(train_pathway_predictions_by_step1)
@@ -208,11 +238,9 @@ def stepwise_forward_v2(target_pathways_fixed_p, target_pathways_testing_p, trai
         test_pathway_predictions_by_step1 = []
         #
         for pi in target_pathways_fixed_p + [target_pathways_testing_p[test_pi]]:
-            with open( runN + 
-                    "/prediction_level1/pi"+str(pi)+"_" + train_dataN+"_pi"+str(pi)+".pkl", 'rb') as file:
+            with open(_level1_pred_path(runN, pi, train_dataN), 'rb') as file:
                 train_pathway_predictions_by_step1.append(pickle.load(file))
-            with open(runN + 
-                    "/prediction_level1/pi"+str(pi)+"_" + test_dataN+"_pi"+str(pi)+".pkl", 'rb') as file:
+            with open(_level1_pred_path(runN, pi, test_dataN), 'rb') as file:
                 test_pathway_predictions_by_step1.append(pickle.load(file))
         #
         train_pathway_predictions_by_step1 = np.array(train_pathway_predictions_by_step1)
@@ -596,11 +624,9 @@ for cvi in range(len(cv_train_dataNs)):
     test_pathway_predictions_by_step1 = []
     #
     for pi in pathway_index_selected_multi:
-        with open( runN + 
-                "/prediction_level1/pi"+str(pi)+"_" + cv_train_pathway_prediction_dataNs[cvi]+"_pi"+str(pi)+".pkl", 'rb') as file:
+        with open(_level1_pred_path(runN, pi, cv_train_pathway_prediction_dataNs[cvi]), 'rb') as file:
             train_pathway_predictions_by_step1.append(pickle.load(file))
-        with open(runN + 
-                "/prediction_level1/pi"+str(pi)+"_" + cv_test_pathway_prediction_dataNs[cvi]+"_pi"+str(pi)+".pkl", 'rb') as file:
+        with open(_level1_pred_path(runN, pi, cv_test_pathway_prediction_dataNs[cvi]), 'rb') as file:
             test_pathway_predictions_by_step1.append(pickle.load(file))
     #
     train_pathway_predictions_by_step1 = np.array(train_pathway_predictions_by_step1)
@@ -729,11 +755,9 @@ for cvi in range(len(cv_train_dataNs)):
     test_pathway_predictions_by_step1 = []
     #
     for pi in pathway_index_selected_multi:
-        with open( runN + 
-                "/prediction_level1/pi"+str(pi)+"_" + cv_train_pathway_prediction_dataNs[cvi]+"_pi"+str(pi)+".pkl", 'rb') as file:
+        with open(_level1_pred_path(runN, pi, cv_train_pathway_prediction_dataNs[cvi]), 'rb') as file:
             train_pathway_predictions_by_step1.append(pickle.load(file))
-        with open(runN + 
-                "/prediction_level1/pi"+str(pi)+"_" + cv_test_pathway_prediction_dataNs[cvi]+"_pi"+str(pi)+".pkl", 'rb') as file:
+        with open(_level1_pred_path(runN, pi, cv_test_pathway_prediction_dataNs[cvi]), 'rb') as file:
             test_pathway_predictions_by_step1.append(pickle.load(file))
     #
     train_pathway_predictions_by_step1 = np.array(train_pathway_predictions_by_step1)
