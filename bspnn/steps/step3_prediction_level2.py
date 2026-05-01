@@ -48,7 +48,7 @@ parser.add_argument('--cv_test_dataNs', # pickled, balanced assay
                     type=str, nargs='*',)
 parser.add_argument('--cv_train_pathway_prediction_dataNs',
                     type=str, nargs='*',
-                    help='Per-fold stem(s): reads RUN/prediction_level1/pi<k>_<stem>_pi<k>.pkl (pass basename / stem only).')
+                    help='Per-fold stem(s): reads RUN/prediction_level1/pi<k>_<stem>.pkl (pass basename / stem only).')
 parser.add_argument('--cv_val_pathway_prediction_dataNs',
                     type=str, nargs='*',
                     help='Per-fold stem(s) under RUN/prediction_level1/ (basename only).')
@@ -97,7 +97,7 @@ def _under_run_data(runN, paths):
 def _level1_pred_path(runN, pi, stem):
     s = str(stem).replace('.pkl', '').replace('.PKL', '')
     s = os.path.basename(s)
-    return os.path.normpath(os.path.join(runN, 'prediction_level1', f'pi{pi}_{s}_pi{pi}.pkl'))
+    return os.path.normpath(os.path.join(runN, 'prediction_level1', f'pi{pi}_{s}.pkl'))
 
 
 cv_train_dataNs = split_comma_separated(args.cv_train_dataNs) if args.cv_train_dataNs else args.cv_train_dataNs
@@ -114,7 +114,7 @@ cv_test_pathway_prediction_dataNs = split_comma_separated(args.cv_test_pathway_p
 
 
 def _pathway_prediction_stem(name):
-    """Basename without .pkl; used with _level1_pred_path -> {runN}/prediction_level1/pi<k>_<stem>_pi<k>.pkl."""
+    """Basename without .pkl; used with _level1_pred_path -> RUN/prediction_level1/pi<k>_<stem>.pkl."""
     s = os.path.basename(str(name))
     return s.replace('.pkl', '').replace('.PKL', '')
 

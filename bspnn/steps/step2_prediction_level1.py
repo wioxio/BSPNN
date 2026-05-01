@@ -201,8 +201,8 @@ for dataC in range(len(train_dataNs)):
         stem_tr = os.path.splitext(os.path.basename(train_dataNs[dataC]))[0]
         stem_va = os.path.splitext(os.path.basename(val_dataNs[dataC]))[0]
         stem_te = os.path.splitext(os.path.basename(test_dataNs[dataC]))[0]
-        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_tr}_pi{pi}.pkl'), model1_0.predict(X_train_sub))
-        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_va}_pi{pi}.pkl'), model1_0.predict(X_val_sub))
-        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_te}_pi{pi}.pkl'), model1_0.predict(X_test_sub)) 
+        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_tr}.pkl'), model1_0.predict(X_train_sub))
+        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_va}.pkl'), model1_0.predict(X_val_sub))
+        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_te}.pkl'), model1_0.predict(X_test_sub)) 
 
 

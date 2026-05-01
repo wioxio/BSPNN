@@ -58,7 +58,7 @@ All steps use a single run root directory passed as `--runN`. For **step 2** and
 | Location | Contents |
 |----------|----------|
 | `{runN}/data/` | Per-fold expression matrices (pickles of `pandas.DataFrame`: label in column 0, features in columns 1+). **Steps 1, 2, and 3** take **basenames** (or paths) on the CLI; each is opened as `{runN}/data/<basename>` (only the filename is used). |
-| `{runN}/prediction_level1/` | Pathway-level prediction outputs from **step 2**. Each file is named `pi<pathway_index>_<stem>_pi<pathway_index>.pkl`, where `<stem>` is the stem of the corresponding `{runN}/data/` pickle (e.g. `fold1_train.pkl` → stem `fold1_train`). **Step 3** reads these via `--cv_train_pathway_prediction_dataNs`, `--cv_val_pathway_prediction_dataNs`, and `--cv_test_pathway_prediction_dataNs`: pass the **same stems** (basenames; `.pkl` optional). Files are always read as `{runN}/prediction_level1/pi<k>_<stem>_pi<k>.pkl`. |
+| `{runN}/prediction_level1/` | Pathway-level prediction outputs from **step 2**. Each file is named `pi<pathway_index>_<stem>.pkl`, where `<stem>` is the stem of the corresponding `{runN}/data/` pickle (e.g. `fold1_train.pkl` → stem `fold1_train`). **Step 3** reads these via `--cv_train_pathway_prediction_dataNs`, `--cv_val_pathway_prediction_dataNs`, and `--cv_test_pathway_prediction_dataNs`: pass the **same stems** (basenames; `.pkl` optional). Files are read as `{runN}/prediction_level1/pi<k>_<stem>.pkl`. |
 
 Step 1 writes CSV summaries under `{runN}/` (not under `data/`).
 
@@ -105,7 +105,7 @@ python -m bspnn.steps.step3_prediction_level2 --help
 
 ### Run Examples
 
-After installation, you can run the full pipeline from the command line. **Step 1** train/val pickles live under `{runN}/data/` (basename on CLI). For **step 3**, stems in `--cv_*_pathway_prediction_dataNs` must match the `pi<k>_<stem>_pi<k>.pkl` files under `{runN}/prediction_level1/` produced by step 2 (stem = basename of the corresponding `{runN}/data/` pickle without `.pkl`).
+After installation, you can run the full pipeline from the command line. **Step 1** train/val pickles live under `{runN}/data/` (basename on CLI). For **step 3**, stems in `--cv_*_pathway_prediction_dataNs` must match the `pi<k>_<stem>.pkl` files under `{runN}/prediction_level1/` produced by step 2 (stem = basename of the corresponding `{runN}/data/` pickle without `.pkl`).
 
 ```bash
 # Step 1 (place train/val pickles under {runN}/data/; pass basenames only)
