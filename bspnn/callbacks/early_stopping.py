@@ -19,7 +19,7 @@ class EarlyStoppingAtMinLoss(keras.callbacks.Callback):
     def on_train_begin(self, logs=None):
         self.wait = 0
         self.stopped_epoch = 0
-        self.best = np.Inf
+        self.best = np.inf
         self.best_weights = self.model.get_weights()
 
     def on_epoch_end(self, epoch, logs=None):
