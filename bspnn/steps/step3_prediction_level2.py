@@ -307,14 +307,14 @@ original_specificity = []
 original_f1 = []
 original_kappa = []
 for dataC in range(len(cv_train_dataNs)):
-    with open(runN+'/data/'+cv_test_dataNs[dataC], 'rb') as file:
+    with open(cv_test_dataNs[dataC], 'rb') as file:
         test_data = pickle.load(file)
         test_x = test_data.iloc[:, 1:].values
         #substitute missing value with 0
         test_x = np.nan_to_num(test_x, 0)
         test_y = test_data.iloc[:, 0].values.astype("float32")
     print(f'test data size: ({test_x.shape[0]}, {test_x.shape[1]})')
-    with open(runN+'/data/'+cv_train_dataNs[dataC], 'rb') as file:
+    with open(cv_train_dataNs[dataC], 'rb') as file:
         train_data = pickle.load(file)
         train_x = train_data.iloc[:, 1:].values
         #substitute missing value with 0
@@ -412,17 +412,17 @@ stepforward_accuracy_ave = []
 selected_pathways = {}
 for cvi in range(len(cv_train_dataNs)):
     print(f'########## stepforward prediction level2: {cvi}th data')
-    with open(runN+'/data/'+cv_train_dataNs[cvi], 'rb') as file:
+    with open(cv_train_dataNs[cvi], 'rb') as file:
         train_data = pickle.load(file)
         #train_x = train_data.iloc[:, 1:].values
         train_y = train_data.iloc[:, 0].values.astype("float32")
         print(f'train data size: ({train_data.shape[0]}, {train_data.shape[1]})')
-    with open(runN+'/data/'+cv_val_dataNs[cvi], 'rb') as file:
+    with open(cv_val_dataNs[cvi], 'rb') as file:
         val_data = pickle.load(file)
         #val_x = val_data.iloc[:, 1:].values
         val_y = val_data.iloc[:, 0].values.astype("float32")
         print(f'val data size: ({val_data.shape[0]}, {val_data.shape[1]})')
-    with open(runN+'/data/'+cv_test_dataNs[cvi], 'rb') as file:
+    with open(cv_test_dataNs[cvi], 'rb') as file:
         test_data = pickle.load(file)
         #test_x = test_data.iloc[:, 1:].values
         test_y = test_data.iloc[:, 0].values.astype("float32")  
@@ -573,19 +573,19 @@ final_f1 = []
 final_kappa = []
 for cvi in range(len(cv_train_dataNs)):
     print(f'########## stepforward prediction level2: {cvi}th data')
-    with open(runN+'/data/'+cv_train_dataNs[cvi], 'rb') as file:
+    with open(cv_train_dataNs[cvi], 'rb') as file:
         train_data = pickle.load(file)
         #train_x = train_data.iloc[:, 1:].values
         train_y = train_data.iloc[:, 0].values.astype("float32")
         print(f'train data size: ({train_data.shape[0]}, {train_data.shape[1]})')
         del train_data
-    with open(runN+'/data/'+cv_val_dataNs[cvi], 'rb') as file:
+    with open(cv_val_dataNs[cvi], 'rb') as file:
         val_data = pickle.load(file)
         #val_x = val_data.iloc[:, 1:].values
         val_y = val_data.iloc[:, 0].values.astype("float32")
         print(f'val data size: ({val_data.shape[0]}, {val_data.shape[1]})')
         del val_data
-    with open(runN+'/data/'+cv_test_dataNs[cvi], 'rb') as file:
+    with open(cv_test_dataNs[cvi], 'rb') as file:
         test_data = pickle.load(file)
         #test_x = test_data.iloc[:, 1:].values
         test_y = test_data.iloc[:, 0].values.astype("float32")  
@@ -700,7 +700,7 @@ final_f1 = []
 final_kappa = []
 for cvi in range(len(cv_train_dataNs)):
     print(f'########## stepforward prediction level2: {cvi}th data')
-    with open(runN+'/data/'+cv_train_dataNs[cvi], 'rb') as file:
+    with open(cv_train_dataNs[cvi], 'rb') as file:
         train_data = pickle.load(file)
         train_x = train_data.iloc[:, 1:].values
         #substitute missing value with 0
@@ -708,7 +708,7 @@ for cvi in range(len(cv_train_dataNs)):
         train_y = train_data.iloc[:, 0].values.astype("float32")
         print(f'train data size: ({train_data.shape[0]}, {train_data.shape[1]})')
         del train_data
-    with open(runN+'/data/'+cv_val_dataNs[cvi], 'rb') as file:
+    with open(cv_val_dataNs[cvi], 'rb') as file:
         val_data = pickle.load(file)
         val_x = val_data.iloc[:, 1:].values
         #substitute missing value with 0
@@ -716,7 +716,7 @@ for cvi in range(len(cv_train_dataNs)):
         val_y = val_data.iloc[:, 0].values.astype("float32")
         print(f'val data size: ({val_data.shape[0]}, {val_data.shape[1]})')
         del val_data
-    with open(runN+'/data/'+cv_test_dataNs[cvi], 'rb') as file:
+    with open(cv_test_dataNs[cvi], 'rb') as file:
         test_data = pickle.load(file)
         test_x = test_data.iloc[:, 1:].values
         #substitute missing value with 0

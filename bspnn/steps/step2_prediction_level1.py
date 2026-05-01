@@ -126,11 +126,11 @@ pathway_indices = pathway_indices.astype(int)
 
 
 for dataC in range(len(train_dataNs)):
-    with open(runN+'/data/'+train_dataNs[dataC], 'rb') as file:
+    with open(train_dataNs[dataC], 'rb') as file:
         train_data_step1 = pickle.load(file)
-    with open(runN+'/data/'+val_dataNs[dataC], 'rb') as file:
+    with open(val_dataNs[dataC], 'rb') as file:
         val_data_step1 = pickle.load(file)
-    with open(runN+'/data/'+test_dataNs[dataC], 'rb') as file:
+    with open(test_dataNs[dataC], 'rb') as file:
         test_data_step1 = pickle.load(file)
     #
     x_train_step1 = train_data_step1.iloc[:, 1:].values

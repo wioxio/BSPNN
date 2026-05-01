@@ -95,10 +95,11 @@ python -m bspnn.steps.step3_prediction_level2 --help
 After installation, you can run the full pipeline from the command line.
 
 ```bash
-# Step 1
+# Step 1 run step1 for each cv fold
+# data format of train, test, validation data: Labels iloc[:, 0], cast to float32. Used with binary_crossentropy and a sigmoid output, so treat as binary (e.g. 0/1). Features iloc[:, 1:]
 bspnn-step1 \
-  --train_dataN path/to/train_data.pkl \
-  --val_dataN path/to/val_data.pkl \
+  --train_dataN path/to/pickled_train_data_fold1.pkl \ 
+  --val_dataN path/to/pickled_val_data_fold1.pkl \
   --pathwayN path/to/pathways.csv \
   --Nlayers 3 \
   --Nnodes 128 \
@@ -107,15 +108,15 @@ bspnn-step1 \
   --patience 10 \
   --batch_size 32 \
   --pathway_start_i 0 \
-  --pathway_end_i 19 \
+  --pathway_end_i 200 \
   --output_prefix output \
   --runN results/run1
 
 # Step 2
 bspnn-step2 \
-  --train_dataNs train1.pkl train2.pkl \
-  --val_dataNs val1.pkl val2.pkl \
-  --test_dataNs test1.pkl test2.pkl \
+  --train_dataNs 'path/to/pickled_train_data_fold1.pkl,path/to/pickled_train_data_fold2.pkl' \
+  --val_dataNs 'path/to/pickled_val_data_fold1.pkl,path/to/pickled_val_data_fold2.pkl' \
+  --test_dataNs 'path/to/pickled_test_data_fold1.pkl,path/to/pickled_test_data_fold2.pkl' \
   --pathwayN path/to/pathways.csv \
   --Nlayers 3 \
   --Nnodes 128 \
@@ -123,7 +124,7 @@ bspnn-step2 \
   --epoch 100 \
   --patience 10 \
   --batch_size 32 \
-  --path_index_fileN path/to/pathway_indices.csv \
+  --path_index_fileN path/to/sorted_topN_pathways.csv \
   --output_prefix output \
   --runN results/run1
 
