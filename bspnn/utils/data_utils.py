@@ -2,6 +2,8 @@
 Utility helpers used by BSPNN step scripts.
 """
 
+import os
+import re
 import pickle
 import numpy as np
 
@@ -62,3 +64,16 @@ def get_importance_index_flag(y_test_p, sampleC_for_importance_p, dataset_name="
     condition_indices = np.where(y_test_p[:, 1] == 1)[0]
     sampled_indices = np.concatenate((np.random.choice(condition_indices, size=importance_sampleC_2, replace=False), sampled_indices), axis=0)
     return sampled_indices
+
+
+def format_pathway_pred_path_for_display(path):
+    """
+    For log output: shorten basename pi<n>_<stem>_pi<n>.pkl to pi<n>_<stem>.pkl when the trailing _pi<n> is redundant.
+    """
+    if path is None:
+        return path
+    d, b = os.path.split(str(path))
+    m = re.match(r"^(pi\d+)_(.*)_\1(\.pkl)$", b, re.IGNORECASE)
+    if m:
+        b = f"{m.group(1)}_{m.group(2)}{m.group(3)}"
+    return os.path.join(d, b) if d else b

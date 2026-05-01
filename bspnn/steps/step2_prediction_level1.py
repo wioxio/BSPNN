@@ -24,7 +24,7 @@ import random
 from pathlib import Path
 from ..models import make_pathway_model
 from ..callbacks import EarlyStoppingAtMinLoss
-from ..utils import clean_file_list, pickle_data
+from ..utils import clean_file_list, pickle_data, format_pathway_pred_path_for_display
 
 
 config = ConfigProto()
@@ -201,8 +201,17 @@ for dataC in range(len(train_dataNs)):
         stem_tr = os.path.splitext(os.path.basename(train_dataNs[dataC]))[0]
         stem_va = os.path.splitext(os.path.basename(val_dataNs[dataC]))[0]
         stem_te = os.path.splitext(os.path.basename(test_dataNs[dataC]))[0]
-        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_tr}.pkl'), model1_0.predict(X_train_sub))
-        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_va}.pkl'), model1_0.predict(X_val_sub))
-        pickle_data(os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_te}.pkl'), model1_0.predict(X_test_sub)) 
+        train_pred_file = os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_tr}.pkl')
+        val_pred_file = os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_va}.pkl')
+        test_pred_file = os.path.join(runN, 'prediction_level1', f'pi{pi}_{stem_te}.pkl')
+        pickle_data(train_pred_file, model1_0.predict(X_train_sub))
+        pickle_data(val_pred_file, model1_0.predict(X_val_sub))
+        pickle_data(test_pred_file, model1_0.predict(X_test_sub))
+        print(
+            f'  Saved pathway {pi} predictions: '
+            f'{format_pathway_pred_path_for_display(train_pred_file)} | '
+            f'{format_pathway_pred_path_for_display(val_pred_file)} | '
+            f'{format_pathway_pred_path_for_display(test_pred_file)}'
+        )
 
 
