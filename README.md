@@ -1,5 +1,5 @@
 
-[![DOI](https://doi.org/10.5281/zenodo.21305097.svg)](https://doi.org/10.5281/zenodo.21305097)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21305097.svg)](https://doi.org/10.5281/zenodo.21305097)
 # BSPNN: Pathway-based stepforward neural network
 
 ## Overview
