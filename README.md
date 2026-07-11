@@ -1,3 +1,4 @@
+ https://doi.org/10.5281/zenodo.21305097
 # BSPNN: Pathway-based stepforward neural network
 
 ## Overview
